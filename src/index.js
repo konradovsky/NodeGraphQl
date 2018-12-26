@@ -1,5 +1,5 @@
 import { GraphQLServer } from "graphql-yoga";
-
+import uuidv4 from "uuid/v4";
 // Demo data
 const users = [
   {
@@ -79,6 +79,11 @@ const typeDefs = `
         me: User!
         post: Post!
     }    
+    type Mutation {
+        createUser(name: String!, email: String!, age: Int): User!
+        createPost(title: String!, body: String!, published: Boolean!, author: ID!): Post!
+        createComment(text: String!, author: ID!, post: ID!): Comment!
+    }
     type User {
         id: ID!
         name: String!
@@ -150,6 +155,58 @@ const resolvers = {
       };
     }
   },
+  Mutation: {
+    createUser(parent, { email, name, age }, ctx, info) {
+      const emailTaken = users.some(user => user.email === email);
+
+      if (emailTaken) {
+        throw new Error("Email taken.");
+      }
+
+      const user = {
+        id: uuidv4(),
+        name,
+        email,
+        age
+      };
+
+      users.push(user);
+
+      return user;
+    },
+    createPost(parent, { title, body, published, author }, ctx, info) {
+      const doesAuthorExists = users.some(user => user.id === author);
+      if (!doesAuthorExists) {
+        throw new Error("Such user does not exists");
+      }
+      const post = {
+        id: uuidv4(),
+        title,
+        body,
+        published,
+        author
+      };
+      posts.push(post);
+      return post;
+    },
+    createComment(parent, { text, author, post }, ctx, info) {
+      const isPostExisting = posts.some(post => post.id === post);
+      const doesAuthorExists = users.some(user => user.id === author);
+
+      if (!doesAuthorExists && !isPostExisting) {
+        throw new Error("Author or Post does not exists");
+      }
+
+      const comment = {
+        id: uuidv4(),
+        text
+      };
+
+      comments.push(comment);
+
+      return comment;
+    }
+  },
   Post: {
     author(parent, args, ctx, info) {
       return users.find(user => {
@@ -194,5 +251,5 @@ const server = new GraphQLServer({
 });
 
 server.start(() => {
-  console.log("The server is up!");
+  console.log("The server is up! on host :4000");
 });
