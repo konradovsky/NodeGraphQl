@@ -98,7 +98,7 @@ const typeDefs = `
         body: String!
         published: Boolean!
         author: User!
-        comments: [Comment!]!
+        comments: [Comment!]
     }
     type Comment {
         id: ID!
@@ -199,7 +199,9 @@ const resolvers = {
 
       const comment = {
         id: uuidv4(),
-        text
+        text,
+        author,
+        post
       };
 
       comments.push(comment);
