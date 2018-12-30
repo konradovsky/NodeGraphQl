@@ -14,6 +14,11 @@ const Subscription = {
     subscribe(parent, args, { pubsub }, info) {
       return pubsub.asyncIterator("post");
     }
+  },
+  user: {
+    subscribe(parent, args, { pubsub }, info) {
+      return pubsub.asyncIterator("user");
+    }
   }
 };
 

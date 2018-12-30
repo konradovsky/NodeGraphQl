@@ -1,7 +1,7 @@
 import uuidv4 from "uuid/v4";
 
 const Mutation = {
-  createUser(parent, args, { db }, info) {
+  createUser(parent, args, { db, pubsub }, info) {
     const emailTaken = db.users.some(user => user.email === args.data.email);
 
     if (emailTaken) {
@@ -14,17 +14,22 @@ const Mutation = {
     };
 
     db.users.push(user);
-
+    pubsub.publish("user", {
+      user: {
+        mutation: "CREATED",
+        data: user
+      }
+    });
     return user;
   },
-  deleteUser(parent, args, { db }, info) {
+  deleteUser(parent, args, { db, pubsub }, info) {
     const userIndex = db.users.findIndex(user => user.id === args.id);
 
     if (userIndex === -1) {
       throw new Error("User not found");
     }
 
-    const deletedUsers = db.users.splice(userIndex, 1);
+    const [user] = db.users.splice(userIndex, 1);
 
     db.posts = db.posts.filter(post => {
       const match = post.author === args.id;
@@ -37,9 +42,16 @@ const Mutation = {
     });
     db.comments = db.comments.filter(comment => comment.author !== args.id);
 
-    return deletedUsers[0];
+    pubsub.publish("user", {
+      user: {
+        mutation: "DELETED",
+        data: user
+      }
+    });
+
+    return user;
   },
-  updateUser(parent, args, { db }, info) {
+  updateUser(parent, args, { db, pubsub }, info) {
     const { id, data } = args;
     const user = db.users.find(user => user.id === id);
 
@@ -64,6 +76,13 @@ const Mutation = {
     if (typeof data.age !== "undefined") {
       user.age = data.age;
     }
+
+    pubsub.publish("user", {
+      user: {
+        mutation: "UPDATE",
+        data: user
+      }
+    });
 
     return user;
   },
