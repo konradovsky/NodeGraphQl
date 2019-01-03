@@ -7,6 +7,8 @@ import Mutation from "./resolvers/Mutation";
 import Post from "./resolvers/Post";
 import User from "./resolvers/User";
 import Subscription from "./resolvers/Subscription";
+// Prisma
+import "./prisma";
 
 const pubsub = new PubSub();
 
