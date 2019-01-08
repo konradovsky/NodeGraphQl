@@ -1,5 +1,3 @@
-import uuidv4 from "uuid/v4";
-
 const Mutation = {
   async createUser(parent, args, { prisma }, info) {
     return prisma.mutation.createUser({ data: args.data }, info);
@@ -75,5 +73,4 @@ const Mutation = {
     );
   }
 };
-
 export { Mutation as default };
