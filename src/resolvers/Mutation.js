@@ -7,18 +7,15 @@ const Mutation = {
       throw new Error("Password must be at least 8 characters long.");
     }
     const password = await bcrypt.hash(args.data.password, 10);
-    const user = await prisma.mutation.createUser(
-      {
-        data: {
-          ...args.data,
-          password
-        }
-      },
-      info
-    );
+    const user = await prisma.mutation.createUser({
+      data: {
+        ...args.data,
+        password
+      }
+    });
     return {
       user,
-      token: jwt.sign({ userId: "333" }, "thisisasecret")
+      token: jwt.sign({ userId: user.id }, "thisisasecret")
     };
   },
   async deleteUser(parent, args, { prisma }, info) {
