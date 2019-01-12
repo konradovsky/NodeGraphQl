@@ -18,7 +18,7 @@ const Mutation = {
     );
     return {
       user,
-      token: jwt.sing({ userId: user.id }, "thisisasecret")
+      token: jwt.sign({ userId: "333" }, "thisisasecret")
     };
   },
   async deleteUser(parent, args, { prisma }, info) {
